@@ -1,22 +1,31 @@
-name: Survival-Horror-Build
-on: [push] # The robot runs every time you hit "Commit"
+name: Compile Dex
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Project Files
-        uses: actions/checkout@v4
-      
-      - name: Prepare Java Engine
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compile NodeJava Logic
+      - name: Install Android Build Tools
         run: |
-          # This compiles your health node and main logic
-          javac NodeJava/NodeHP.java
-          echo "NodeJava Compiled Successfully!"
+          sudo apt-get update
+          sdkmanager "build-tools;34.0.0" "platforms;android-34"
+
+      - name: Run Compile Script
+        run: |
+          chmod +x termux/compile.sh
+          ./termux/compile.sh
+
+      - name: Upload Dex Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: classes-dex
+          path: classes.dex
           
