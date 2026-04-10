@@ -1,8 +1,8 @@
 package com.xatandcatch.survivalhorror.logic;
 
 /**
- * NodeHP: The core Vitals and Execution engine.
- * Handles Extreme Gore, Instant Death (100+ DMG), and Security Warnings.
+ * NodeHP: The Master Health & Execution Controller.
+ * Handles: 110 DMG Overkill, Global Progress Locking, and Sound Triggers.
  */
 public class NodeHP {
     
@@ -11,8 +11,8 @@ public class NodeHP {
     private boolean isDead = false;
     private String lastDeathReason = "None";
 
-    // 18+ Warning displayed at the start of the logic loop
-    public static final String GORE_WARNING = "WARNING: 18+ EXTREME GORE. Includes Dismemberment & Organ Removal.";
+    // 18+ Security Gate
+    public static final String GORE_WARNING = "CRITICAL: 18+ EXTREME GORE ENABLED. WARNING FOR FIRST-TIME USERS.";
 
     public NodeHP() {
         this.currentHP = MAX_HP;
@@ -20,9 +20,8 @@ public class NodeHP {
     }
 
     /**
-     * Damage handler for Granny's attacks.
-     * @param amount Damage value (100 for Headshot, 110 for Heart Extraction)
-     * @param reason Description of the execution (e.g., "Chainsaw Limb Cut")
+     * The primary damage receiver.
+     * Use 100 for Gun/Headshot and 110 for Heart Extraction.
      */
     public void takeDamage(int amount, String reason) {
         if (!isDead) {
@@ -32,32 +31,35 @@ public class NodeHP {
             if (this.currentHP <= 0) {
                 this.currentHP = 0;
                 this.isDead = true;
-                handleExtremeDeath();
+                executeDeathSequence();
             }
             
-            // Syncs HP and Death State to the Global Metadata Storer
-            syncToGlobalMetadata();
+            // Sync current vitals to the 3D bridge
+            updateBridgeData();
         }
     }
 
-    private void handleExtremeDeath() {
-        // Trigger the specific Gore Shader based on the reason
-        if (lastDeathReason.contains("Chainsaw")) {
-            // Logic to trigger 'GoreUI.glsl' type 3 (Dismemberment)
-        } else if (lastDeathReason.contains("Bite")) {
-            // Logic to trigger 'GoreUI.glsl' type 2 (Heart/Organ Removal)
-        }
-        
-        System.out.println("GAME OVER: " + lastDeathReason);
+    private void executeDeathSequence() {
+        // 1. Permanent Worldwide Lock (GlobalMetadataStorer)
+        // This ensures the death is 'Unhackable' in DataBridge.bin
+        GlobalMetadataStorer.lockDeathState(lastDeathReason, currentHP);
+
+        // 2. Audio Execution (SoundLogic)
+        // Triggers the chainsaw or heart-bite scream natively
+        SoundLogic audioEngine = new SoundLogic();
+        audioEngine.triggerDeathSound(lastDeathReason);
+
+        // 3. UI/Gore Notification
+        // Sends signal to localMetadataRender/GoreUI.glsl
+        System.out.println("EXECUTION_TRIGGERED: " + lastDeathReason);
     }
 
-    private void syncToGlobalMetadata() {
-        // Writes binary data to localMetadataRender/DataBridge.bin
-        // This makes the death "Unhackable" and permanent across sessions
+    private void updateBridgeData() {
+        // Keeps the 3D renderer informed of health levels
+        // Logic to write currentHP to localMetadataRender/DataBridge.bin
     }
 
-    // Getters for the Engine
+    // Engine Getters
     public int getCurrentHP() { return currentHP; }
-    public boolean checkIsDead() { return isDead; }
-    public String getDeathReason() { return lastDeathReason; }
+    public boolean isDead() { return isDead; }
 }
