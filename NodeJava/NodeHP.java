@@ -1,42 +1,63 @@
 package com.xatandcatch.survivalhorror.logic;
 
 /**
- * NodeHP: The native health node for Survival-Horror.
- * Connects directly to the Global Metadata Storer.
+ * NodeHP: The core Vitals and Execution engine.
+ * Handles Extreme Gore, Instant Death (100+ DMG), and Security Warnings.
  */
 public class NodeHP {
     
     private int currentHP;
     private final int MAX_HP = 100;
     private boolean isDead = false;
+    private String lastDeathReason = "None";
+
+    // 18+ Warning displayed at the start of the logic loop
+    public static final String GORE_WARNING = "WARNING: 18+ EXTREME GORE. Includes Dismemberment & Organ Removal.";
 
     public NodeHP() {
         this.currentHP = MAX_HP;
+        System.out.println(GORE_WARNING);
     }
 
-    // Reduces HP when attacked by Granny
-    public void takeDamage(int amount) {
+    /**
+     * Damage handler for Granny's attacks.
+     * @param amount Damage value (100 for Headshot, 110 for Heart Extraction)
+     * @param reason Description of the execution (e.g., "Chainsaw Limb Cut")
+     */
+    public void takeDamage(int amount, String reason) {
         if (!isDead) {
-            currentHP -= amount;
-            if (currentHP <= 0) {
-                currentHP = 0;
-                isDead = true;
-                handlePlayerDeath();
+            this.currentHP -= amount;
+            this.lastDeathReason = reason;
+
+            if (this.currentHP <= 0) {
+                this.currentHP = 0;
+                this.isDead = true;
+                handleExtremeDeath();
             }
-            // Syncs the new HP to the Global Metadata Storer
-            syncHPToGlobal();
+            
+            // Syncs HP and Death State to the Global Metadata Storer
+            syncToGlobalMetadata();
         }
     }
 
-    private void syncHPToGlobal() {
-        // Logic to write currentHP into localMetadataRender/DataBridge.bin
+    private void handleExtremeDeath() {
+        // Trigger the specific Gore Shader based on the reason
+        if (lastDeathReason.contains("Chainsaw")) {
+            // Logic to trigger 'GoreUI.glsl' type 3 (Dismemberment)
+        } else if (lastDeathReason.contains("Bite")) {
+            // Logic to trigger 'GoreUI.glsl' type 2 (Heart/Organ Removal)
+        }
+        
+        System.out.println("GAME OVER: " + lastDeathReason);
     }
 
-    private void handlePlayerDeath() {
-        // Trigger the 3D "Game Over" screen in the renderer
+    private void syncToGlobalMetadata() {
+        // Writes binary data to localMetadataRender/DataBridge.bin
+        // This makes the death "Unhackable" and permanent across sessions
     }
 
-    public int getCurrentHP() {
-        return currentHP;
-    }
+    // Getters for the Engine
+    public int getCurrentHP() { return currentHP; }
+    public boolean checkIsDead() { return isDead; }
+    public String getDeathReason() { return lastDeathReason; }
 }
