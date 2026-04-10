@@ -1,20 +1,22 @@
-name: NodeJava Auto-Build
-on: [push] # The robot wakes up every time you commit
+name: Survival-Horror-Build
+on: [push] # The robot runs every time you hit "Commit"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Get Project Files
+        uses: actions/checkout@v4
       
-      - name: Set up JDK
+      - name: Prepare Java Engine
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compile NodeHP
+      - name: Compile NodeJava Logic
         run: |
+          # This compiles your health node and main logic
           javac NodeJava/NodeHP.java
-          echo "Successfully compiled NodeHP to bytecode!"
+          echo "NodeJava Compiled Successfully!"
           
